@@ -35,7 +35,7 @@ A Windows desktop widget (C# / WPF) that shows a Notion to-do database.
 필요: Windows 10/11, [.NET 10 SDK](https://dotnet.microsoft.com/download) (다른 버전을 쓰려면 `.csproj` 의 `TargetFramework` 수정)
 
 ```powershell
-git clone <이 저장소 주소>
+git clone https://github.com/weaseleyegun/NotionTodoWidget
 cd NotionTodoWidget
 dotnet run
 ```
