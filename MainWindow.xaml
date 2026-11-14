@@ -48,10 +48,17 @@
                         <Run Text="{Binding Title, Mode=OneWay}" />
                     </TextBlock>
 
-                    <!-- 이 항목의 노션 페이지 열기 -->
-                    <Button Grid.Row="0" Grid.Column="2" Style="{StaticResource IconButton}"
-                            FontFamily="Segoe Fluent Icons, Segoe MDL2 Assets" Content="&#xE8A7;" FontSize="12"
-                            Width="24" Height="24" ToolTip="{x:Static local:Strings.TipOpenItem}" Click="OpenNotion_Click" />
+                    <!-- 이 항목의 노션 페이지 열기 / 삭제 -->
+                    <StackPanel Grid.Row="0" Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Top">
+                        <Button Style="{StaticResource IconButton}"
+                                FontFamily="Segoe Fluent Icons, Segoe MDL2 Assets" Content="&#xE8A7;" FontSize="12"
+                                Width="24" Height="24" ToolTip="{x:Static local:Strings.TipOpenItem}"
+                                Click="OpenNotion_Click" />
+                        <Button Style="{StaticResource IconButton}"
+                                FontFamily="Segoe Fluent Icons, Segoe MDL2 Assets" Content="&#xE74D;" FontSize="12"
+                                Width="24" Height="24" ToolTip="{x:Static local:Strings.MenuDelete}"
+                                Click="CardDelete_Click" />
+                    </StackPanel>
 
                     <!-- 체크박스 -->
                     <CheckBox Grid.Row="1" Grid.Column="0" Style="{StaticResource NotionCheck}"
