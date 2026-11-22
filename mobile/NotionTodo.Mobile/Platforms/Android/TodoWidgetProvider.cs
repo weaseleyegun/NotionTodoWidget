@@ -60,6 +60,12 @@ public class TodoWidgetProvider : AppWidgetProvider
             PendingIntentFlags.UpdateCurrent | PendingIntentFlags.Immutable);
         rv.SetOnClickPendingIntent(Res(context, "id", "widget_refresh"), refreshPi);
 
+        // + 버튼: 빠른 추가 창 열기
+        var add = new Intent(context, typeof(QuickAddActivity)).AddFlags(ActivityFlags.NewTask);
+        var addPi = PendingIntent.GetActivity(context, widgetId + 300000, add,
+            PendingIntentFlags.UpdateCurrent | PendingIntentFlags.Immutable);
+        rv.SetOnClickPendingIntent(Res(context, "id", "widget_add"), addPi);
+
         // 제목 줄을 누르면 앱 열기
         var open = new Intent(context, typeof(MainActivity)).AddFlags(ActivityFlags.NewTask | ActivityFlags.ClearTop);
         var openPi = PendingIntent.GetActivity(context, widgetId + 200000, open,

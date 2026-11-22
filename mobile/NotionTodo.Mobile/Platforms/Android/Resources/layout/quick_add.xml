@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="20dp">
+
+    <TextView
+        android:id="@+id/quick_heading"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:paddingBottom="8dp" />
+
+    <EditText
+        android:id="@+id/quick_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:minHeight="48dp"
+        android:inputType="textCapSentences"
+        android:imeOptions="actionDone"
+        android:maxLines="1"
+        android:singleLine="true" />
+
+    <RadioGroup
+        android:id="@+id/quick_due"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingTop="8dp">
+        <RadioButton
+            android:id="@+id/quick_due_none"
+            android:layout_width="wrap_content"
+            android:layout_height="48dp"
+            android:checked="true" />
+        <RadioButton
+            android:id="@+id/quick_due_today"
+            android:layout_width="wrap_content"
+            android:layout_height="48dp" />
+        <RadioButton
+            android:id="@+id/quick_due_tomorrow"
+            android:layout_width="wrap_content"
+            android:layout_height="48dp" />
+    </RadioGroup>
+
+    <TextView
+        android:id="@+id/quick_error"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        android:textSize="13sp"
+        android:textColor="@color/widget_due_over"
+        android:paddingTop="4dp" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="end"
+        android:paddingTop="8dp">
+        <Button
+            android:id="@+id/quick_cancel"
+            style="?android:attr/borderlessButtonStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="48dp" />
+        <Button
+            android:id="@+id/quick_add"
+            style="?android:attr/borderlessButtonStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="48dp"
+            android:textColor="@color/widget_accent"
+            android:textStyle="bold" />
+    </LinearLayout>
+</LinearLayout>

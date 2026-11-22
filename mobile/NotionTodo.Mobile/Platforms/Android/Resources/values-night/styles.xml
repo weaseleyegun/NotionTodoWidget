@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- 다크 -->
+    <style name="QuickAddTheme" parent="@android:style/Theme.DeviceDefault.Dialog.MinWidth">
+        <item name="android:windowSoftInputMode">stateVisible|adjustResize</item>
+    </style>
+</resources>

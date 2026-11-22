@@ -25,6 +25,19 @@
             android:paddingBottom="4dp" />
 
         <TextView
+            android:id="@+id/widget_add"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="+"
+            android:textSize="26sp"
+            android:textStyle="bold"
+            android:textColor="@color/widget_accent"
+            android:contentDescription="@string/widget_add_description"
+            android:paddingStart="10dp"
+            android:paddingEnd="10dp"
+            android:paddingTop="2dp"
+            android:paddingBottom="2dp" />
+        <TextView
             android:id="@+id/widget_refresh"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
