@@ -2,5 +2,8 @@
   <Folder Name="/src/">
     <Project Path="src/NotionTodo.Core/NotionTodo.Core.csproj" />
   </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/NotionTodo.Core.Tests/NotionTodo.Core.Tests.csproj" />
+  </Folder>
   <Project Path="NotionTodoWidget.csproj" />
 </Solution>
