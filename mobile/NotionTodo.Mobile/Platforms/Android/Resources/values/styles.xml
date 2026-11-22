@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- 위젯 "+" 로 여는 빠른 추가 팝업 (라이트) -->
+    <style name="QuickAddTheme" parent="@android:style/Theme.DeviceDefault.Light.Dialog.MinWidth">
+        <item name="android:windowSoftInputMode">stateVisible|adjustResize</item>
+    </style>
+    <string name="widget_add_description">Add a task</string>
+</resources>

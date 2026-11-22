@@ -9,3 +9,7 @@ publish/
 # Secrets — never commit your Notion token
 appsettings.json
 settings.json
+
+# Android signing keys — never commit
+*.keystore
+*.jks

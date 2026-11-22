@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<Shell
+    x:Class="NotionTodo.Mobile.AppShell"
+    xmlns:local="clr-namespace:NotionTodo.Mobile"
+    Shell.FlyoutBehavior="Disabled"
+    Shell.NavBarIsVisible="False"
+    Shell.TabBarIsVisible="False">
+
+    <ShellContent Route="TodoPage" ContentTemplate="{DataTemplate local:TodoPage}" />
+    <ShellContent Route="SetupPage" ContentTemplate="{DataTemplate local:SetupPage}" />
+
+</Shell>

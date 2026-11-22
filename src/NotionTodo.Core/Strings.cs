@@ -62,6 +62,12 @@ public static class Strings
     public static string EmptyText => T("할 일이 없어요\n아래에서 새 할 일을 추가해 보세요", "Nothing to do\nAdd a new task below");
     public static string AddPlaceholder => T("+ 새 할 일 입력 후 Enter", "+ New task — press Enter");
     public static string NewDetailPlaceholder => T("세부내용 (선택) · Ctrl+Enter 로 추가", "Details (optional) · Ctrl+Enter to add");
+    // 위젯 빠른 추가
+    public static string QuickAddTitle => T("새 할 일 추가", "New task");
+    public static string QuickAddHint => T("할 일을 입력하세요", "What needs doing?");
+    public static string BtnAdd => T("추가", "Add");
+    public static string QuickAddDone => T("추가했습니다", "Added");
+    public static string TipQuickAdd => T("새 할 일 추가", "Add a task");
     public static string TipToggleDetail => T("세부내용 · 마감일 입력", "Details & due date");
 
     // ---------- 실행 취소 ----------

@@ -13,17 +13,43 @@ namespace NotionTodoWidget;
 public sealed record DatabaseInfo(string Title, string Url, IReadOnlyList<string> Problems);
 
 /// <summary>Notion API 호출 담당. DB 속성: Name(title), Done(checkbox), Detail(rich_text), Due(date)</summary>
-public sealed class NotionClient
+public sealed class NotionClient : INotionApi
 {
-    private readonly HttpClient _http = new() { BaseAddress = new Uri("https://api.notion.com/v1/") };
+    private const int MaxRetries = 3;
+
+    private readonly HttpClient _http;
     private readonly string _databaseId;
     private string _titleProp = "Name";
 
     public NotionClient(string token, string databaseId)
+        : this(new HttpClient { BaseAddress = new Uri("https://api.notion.com/v1/") }, token, databaseId)
     {
-        _databaseId = databaseId;
-        _http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+    }
+
+    /// <summary>테스트용: HttpClient 를 주입합니다. 토큰·DB ID 앞뒤 공백/줄바꿈은 제거합니다.</summary>
+    public NotionClient(HttpClient http, string token, string databaseId)
+    {
+        _http = http;
+        _http.BaseAddress ??= new Uri("https://api.notion.com/v1/");
+        _databaseId = databaseId.Trim();
+        _http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token.Trim());
         _http.DefaultRequestHeaders.Add("Notion-Version", "2022-06-28");
+    }
+
+    /// <summary>모든 요청의 단일 통로. 429(속도 제한)면 Retry-After 만큼 기다렸다 최대 3회 재시도합니다.</summary>
+    private async Task<HttpResponseMessage> SendAsync(Func<HttpRequestMessage> makeRequest)
+    {
+        for (int attempt = 0; ; attempt++)
+        {
+            var res = await _http.SendAsync(makeRequest());
+            if ((int)res.StatusCode != 429 || attempt >= MaxRetries) return res;
+
+            var wait = res.Headers.RetryAfter?.Delta
+                       ?? (res.Headers.TryGetValues("Retry-After", out var v) && double.TryParse(v.FirstOrDefault(), out var sec)
+                           ? TimeSpan.FromSeconds(sec) : TimeSpan.FromSeconds(1));
+            res.Dispose();
+            await Task.Delay(wait);
+        }
     }
 
     // ---------- 조회 ----------
@@ -31,7 +57,7 @@ public sealed class NotionClient
     /// <summary>DB 의 제목과 URL 을 가져옵니다. (헤더 제목 / "노션에서 열기" 용)</summary>
     public async Task<DatabaseInfo> GetDatabaseInfoAsync()
     {
-        using var res = await _http.GetAsync($"databases/{_databaseId}");
+        using var res = await SendAsync(() => new HttpRequestMessage(HttpMethod.Get, $"databases/{_databaseId}"));
         var text = await res.Content.ReadAsStringAsync();
         if (!res.IsSuccessStatusCode) throw new HttpRequestException(Describe(res, text));
 
@@ -97,7 +123,7 @@ public sealed class NotionClient
             };
             if (cursor is not null) body["start_cursor"] = cursor;
 
-            using var res = await _http.PostAsync($"databases/{_databaseId}/query", ToJson(body));
+            using var res = await SendAsync(() => new HttpRequestMessage(HttpMethod.Post, $"databases/{_databaseId}/query") { Content = ToJson(body) });
             var text = await res.Content.ReadAsStringAsync();
             if (!res.IsSuccessStatusCode) throw new HttpRequestException(Describe(res, text));
 
@@ -208,15 +234,14 @@ public sealed class NotionClient
             properties
         };
 
-        using var res = await _http.PostAsync("pages", ToJson(body));
+        using var res = await SendAsync(() => new HttpRequestMessage(HttpMethod.Post, "pages") { Content = ToJson(body) });
         if (!res.IsSuccessStatusCode)
             throw new HttpRequestException(Describe(res, await res.Content.ReadAsStringAsync()));
     }
 
     private async Task PatchPageAsync(string pageId, object body)
     {
-        using var req = new HttpRequestMessage(HttpMethod.Patch, $"pages/{pageId}") { Content = ToJson(body) };
-        using var res = await _http.SendAsync(req);
+        using var res = await SendAsync(() => new HttpRequestMessage(HttpMethod.Patch, $"pages/{pageId}") { Content = ToJson(body) });
         if (!res.IsSuccessStatusCode)
             throw new HttpRequestException(Describe(res, await res.Content.ReadAsStringAsync()));
     }
@@ -229,8 +254,15 @@ public sealed class NotionClient
         if (string.IsNullOrEmpty(text)) return Array.Empty<object>();
 
         var parts = new List<object>();
-        for (int i = 0; i < text.Length; i += 2000)
-            parts.Add(new { text = new { content = text.Substring(i, Math.Min(2000, text.Length - i)) } });
+        int pos = 0;
+        while (pos < text.Length)
+        {
+            int len = Math.Min(2000, text.Length - pos);
+            // 이모지 등 서로게이트 쌍이 경계에서 잘리면 깨지므로 한 글자 앞에서 끊습니다.
+            if (pos + len < text.Length && char.IsHighSurrogate(text[pos + len - 1])) len--;
+            parts.Add(new { text = new { content = text.Substring(pos, len) } });
+            pos += len;
+        }
         return parts.ToArray();
     }
 

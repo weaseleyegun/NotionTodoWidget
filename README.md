@@ -88,6 +88,27 @@ dotnet publish -c Release -r win-x64 --self-contained false -o publish
 ### 구조
 `MainWindow` (목록/UI) · `NotionClient` (API) · `DueChip` (달력 칩) · `SettingsWindow` · `ThemeManager` (라이트/다크 팔레트) · `Strings` (한/영) · `AppSettings`/`WidgetState` (설정/상태)
 
+### Android 앱
+같은 노션 데이터베이스를 쓰는 **Android 앱**(.NET MAUI)이 `mobile/` 에 있습니다. 위젯과 폰은 서로 직접 통신하지 않고 둘 다 노션 API 로 읽고 써서 동기화됩니다.
+
+| 항목 | 설명 |
+|------|------|
+| 기능 | 위젯과 동일: 목록, 완료/삭제 + 실행 취소, 세부내용·마감일 편집, 새 할 일, 한/영, 라이트/다크, 연결 상태 |
+| 동기화 | 앱으로 돌아올 때 즉시, 켜져 있는 동안 60초마다(입력 중에는 건너뜀), 아래로 당겨 새로고침 |
+| 오프라인 | 마지막으로 받은 목록을 보여주고 상태가 🔴 로 바뀜 |
+| 충돌 | 같은 항목을 위젯과 폰에서 동시에 수정하면 **마지막에 저장한 쪽**이 이김 |
+| 토큰 | 폰의 보안 저장소(SecureStorage)에만 저장 |
+| 홈 화면 위젯 | 4×4 크기 조절 가능. 마감일 순 목록, ☐ 로 완료, ⟳ 새로고침, 시스템 다크/라이트 자동 적용. 자동 갱신은 약 30분 간격 |
+| 위젯에서 빠른 추가 | 위젯 맨 아래 입력 바(▶)를 누르면 키보드와 함께 입력칸이 열림. 제목 + 마감일(없음/오늘/내일). 안드로이드는 위젯 안 직접 입력을 허용하지 않아 팝업 방식 |
+
+빌드: .NET SDK + `dotnet workload install maui-android`, JDK 17+, Android SDK 필요.
+```powershell
+dotnet build mobile/NotionTodo.Mobile -f net11.0-android -t:InstallAndroidDependencies -p:AndroidSdkDirectory=<SDK경로> -p:JavaSdkDirectory=<JDK경로> -p:AcceptAndroidSDKLicenses=True   # 최초 1회
+dotnet publish mobile/NotionTodo.Mobile -f net11.0-android -c Release -p:AndroidPackageFormat=apk -p:AndroidSdkDirectory=<SDK경로> -p:JavaSdkDirectory=<JDK경로>
+adb install -r <생성된 *-Signed.apk>
+```
+첫 실행 시 설정 화면에서 토큰과 데이터베이스 링크를 입력하고 **연결 테스트 → 저장**. 공유 코드는 `src/NotionTodo.Core`(Notion 클라이언트·화면 로직), 테스트는 `dotnet test tests/NotionTodo.Core.Tests`.
+
 ---
 
 ## English
@@ -131,6 +152,25 @@ dotnet publish -c Release -r win-x64 --self-contained false -o publish
 - **Missing required property** — check that `Done` exists and is a checkbox.
 - **Widget not visible** — it sits behind other windows by default; pin it or press `Win+D`.
 - **Before rebuilding** — `taskkill /IM NotionTodoWidget.exe /F`.
+
+### Android app
+An **Android app** (.NET MAUI) for the same Notion database lives in `mobile/`. The widget and the phone never talk to each other — both read and write through the Notion API, which keeps them in sync.
+
+- **Features:** same as the widget — list, complete/delete with undo, edit details and due dates, add tasks, Korean/English, light/dark, connection status.
+- **Sync:** immediately when the app returns to the foreground, every 60 s while open (skipped while typing), and pull-to-refresh.
+- **Offline:** shows the last list received and the status turns 🔴.
+- **Conflicts:** if the widget and phone edit the same item, the **last save wins**.
+- **Token:** stored only in the phone's SecureStorage.
+- **Home-screen widget:** resizable 4×4; list sorted by due date, ☐ to complete, ⟳ to refresh, follows system dark/light; auto-refresh about every 30 min.
+- **Quick add from the widget:** tap the input bar (▶) at the bottom of the widget to open a keyboard-docked input (title + due: none/today/tomorrow). Android does not allow real text fields inside widgets, so this is a popup.
+
+Build needs the .NET SDK, `dotnet workload install maui-android`, JDK 17+ and the Android SDK:
+```powershell
+dotnet build mobile/NotionTodo.Mobile -f net11.0-android -t:InstallAndroidDependencies -p:AndroidSdkDirectory=<sdk> -p:JavaSdkDirectory=<jdk> -p:AcceptAndroidSDKLicenses=True   # once
+dotnet publish mobile/NotionTodo.Mobile -f net11.0-android -c Release -p:AndroidPackageFormat=apk -p:AndroidSdkDirectory=<sdk> -p:JavaSdkDirectory=<jdk>
+adb install -r <generated *-Signed.apk>
+```
+Shared code is in `src/NotionTodo.Core` (Notion client, view-model); tests: `dotnet test tests/NotionTodo.Core.Tests`.
 
 ## License
 [MIT](LICENSE)

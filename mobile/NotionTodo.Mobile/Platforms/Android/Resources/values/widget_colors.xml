@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="widget_bg">#F2F7F6F3</color>
+    <color name="widget_text">#37352F</color>
+    <color name="widget_sub">#5F5E5A</color>
+    <color name="widget_accent">#1A66B8</color>
+    <color name="widget_input_bg">#FFFFFF</color>
+    <color name="widget_input_stroke">#D9D6CE</color>
+    <color name="widget_due_over">#C23B3B</color>
+    <color name="widget_due_today">#A85A00</color>
+    <color name="widget_due_ok">#1F7A45</color>
+</resources>
