@@ -75,12 +75,20 @@ public partial class SetupPage : ContentPage
     {
         if (ReadInputs() is not var (token, dbId)) return;
 
-        await MobileSettings.SetTokenAsync(token);
-        MobileSettings.DatabaseId = dbId;
-        MobileSettings.Language = LangCodes[Math.Max(0, LanguagePicker.SelectedIndex)];
-        Strings.Init(MobileSettings.Language);
+        try
+        {
+            await MobileSettings.SetTokenAsync(token);
+            MobileSettings.DatabaseId = dbId;
+            MobileSettings.Language = LangCodes[Math.Max(0, LanguagePicker.SelectedIndex)];
+            Strings.Init(MobileSettings.Language);
 
-        await Shell.Current.GoToAsync("//TodoPage");
+            await Shell.Current.GoToAsync("//TodoPage");
+        }
+        catch (Exception ex)
+        {
+            // 키스토어 오류 등으로 저장이 실패해도 앱이 종료되지 않게 합니다.
+            ShowResult(Strings.TestFail(ex.Message), ok: false);
+        }
     }
 
     private void ShowResult(string text, bool ok)

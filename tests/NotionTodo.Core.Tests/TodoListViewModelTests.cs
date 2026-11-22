@@ -162,4 +162,117 @@ public class TodoListViewModelTests
         Assert.Equal(due, item.Due);
         Assert.Equal("ok", item.DueKind);
     }
+
+    [Fact]
+    public async Task SaveDetail_Offline_RestoresOldDetailAndKeepsActionError()
+    {
+        var (vm, api, _) = Make(new TodoItem { Id = "1", Title = "a" });
+        await vm.LoadAsync();
+        var item = vm.Items[0];
+        item.Detail = "old";
+        var ex = new HttpRequestException("offline");
+        api.Failures[nameof(INotionApi.SetDetailAsync)] = ex;
+        api.Failures[nameof(INotionApi.GetOpenTodosAsync)] = ex;
+
+        await vm.SaveDetailAsync(item, "typed");
+
+        Assert.Equal("old", item.Detail);
+        Assert.Equal(Strings.ErrDetail(ex.Message), vm.ErrorMessage);
+    }
+
+    [Fact]
+    public async Task SetDue_Failure_RestoresOldDue()
+    {
+        var (vm, api, _) = Make(Item("1", "a"));
+        await vm.LoadAsync();
+        var item = vm.Items[0];
+        var oldDue = DateTime.Today.AddDays(2);
+        item.SetDue(oldDue);
+        api.Failures[nameof(INotionApi.SetDueAsync)] = new HttpRequestException("x");
+        api.Failures[nameof(INotionApi.GetOpenTodosAsync)] = new HttpRequestException("x");
+
+        await vm.SetDueAsync(item, DateTime.Today.AddDays(9));
+
+        Assert.Equal(oldDue, item.Due);
+    }
+
+    [Fact]
+    public async Task Complete_Failure_ReloadsSoGhostItemDisappears()
+    {
+        var (vm, api, _) = Make(Item("a", "A"), Item("b", "B"));
+        await vm.LoadAsync();
+        var target = vm.Items[0];
+        api.Server = new() { Item("b", "B") };          // 위젯에서 이미 삭제됨
+        var ex = new HttpRequestException("archived");
+        api.Failures["SetDoneAsync:a:True"] = ex;
+
+        await vm.CompleteAsync(target);
+
+        Assert.Equal(new[] { "b" }, vm.Items.Select(i => i.Id).ToArray());
+        Assert.Equal(Strings.ErrDone(ex.Message), vm.ErrorMessage);
+    }
+
+    [Fact]
+    public async Task Load_DuringPendingComplete_DoesNotResurrectItem()
+    {
+        var (vm, api, _) = Make(Item("x", "X"), Item("y", "Y"));
+        await vm.LoadAsync();
+        var gate = new TaskCompletionSource();
+        api.SetDoneGate = gate.Task;
+
+        var completing = vm.CompleteAsync(vm.Items[0]);   // PATCH 가 느린 상태
+        await vm.LoadAsync();                              // 서버는 아직 X 를 돌려줌
+        Assert.DoesNotContain(vm.Items, i => i.Id == "x");
+
+        gate.SetResult();
+        await completing;
+        Assert.Equal(new[] { "y" }, vm.Items.Select(i => i.Id).ToArray());
+    }
+
+    [Fact]
+    public async Task Load_KeepsInstancesAndExpandedState()
+    {
+        var (vm, _, _) = Make(Item("1", "a"), Item("2", "b"));
+        await vm.LoadAsync();
+        var first = vm.Items[0];
+        first.IsExpanded = true;
+
+        await vm.LoadAsync();
+
+        Assert.Same(first, vm.Items[0]);
+        Assert.True(first.IsExpanded);
+    }
+
+    [Fact]
+    public async Task Load_ExpandedItemKeepsLocalDetail_CollapsedGetsServerDetail()
+    {
+        var (vm, api, _) = Make(new TodoItem { Id = "1", Title = "a" }, new TodoItem { Id = "2", Title = "b" });
+        await vm.LoadAsync();
+        vm.Items[0].IsExpanded = true;
+        vm.Items[0].Detail = "typed locally";
+        api.Server = new() { new TodoItem { Id = "1", Title = "a", Detail = "server1" }, new TodoItem { Id = "2", Title = "b", Detail = "server2" } };
+
+        await vm.LoadAsync();
+
+        Assert.Equal("typed locally", vm.Items[0].Detail);
+        Assert.Equal("server2", vm.Items[1].Detail);
+    }
+
+    [Fact]
+    public async Task Add_ConcurrentCalls_OnlyOneApiCall()
+    {
+        var (vm, api, _) = Make();
+        await vm.LoadAsync();
+        var gate = new TaskCompletionSource();
+        api.AddGate = gate.Task;
+
+        var first = vm.AddAsync("milk", null, null);
+        var second = await vm.AddAsync("milk", null, null);   // 진행 중이라 무시
+        gate.SetResult();
+        var firstOk = await first;
+
+        Assert.False(second);
+        Assert.True(firstOk);
+        Assert.Equal(1, api.Calls.Count(c => c == nameof(INotionApi.AddAsync)));
+    }
 }

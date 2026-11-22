@@ -12,6 +12,10 @@ public partial class TodoPage : ContentPage
 
     /// <summary>입력/편집 중이면 자동 새로고침을 건너뜁니다(입력 내용 보호).</summary>
     private bool _editing;
+    private DateTime _editingSince;
+
+    // 키보드만 내리면 Unfocused 가 오지 않을 수 있어, 2분이 지나면 편집 중 표시를 자동 해제합니다.
+    private bool Editing => _editing && DateTime.UtcNow - _editingSince < TimeSpan.FromMinutes(2);
 
     // 날짜 선택 대상: 기존 항목 또는 "새 할 일"
     private TodoItem? _pickItem;
@@ -94,7 +98,7 @@ public partial class TodoPage : ContentPage
 
     private async void OnTimerTick(object? sender, EventArgs e)
     {
-        if (_vm is null || _editing) return;
+        if (_vm is null || Editing) return;
         await _vm.LoadAsync();
     }
 
@@ -160,7 +164,11 @@ public partial class TodoPage : ContentPage
         if (ItemOf(sender) is { } item && _vm is not null) await _vm.DeleteAsync(item);
     }
 
-    private void OnEditFocused(object? sender, FocusEventArgs e) => _editing = true;
+    private void OnEditFocused(object? sender, FocusEventArgs e)
+    {
+        _editing = true;
+        _editingSince = DateTime.UtcNow;
+    }
 
     private void OnEditUnfocused(object? sender, FocusEventArgs e) => _editing = false;
 
@@ -252,9 +260,9 @@ public partial class TodoPage : ContentPage
         var title = AddEntry.Text ?? "";
         if (string.IsNullOrWhiteSpace(title)) return;
 
-        await _vm.AddAsync(title, AddDetail.Text, _newDue);
+        bool added = await _vm.AddAsync(title, AddDetail.Text, _newDue);
 
-        if (_vm.ErrorMessage is null)   // 실패하면 입력을 남겨 다시 시도할 수 있게 합니다.
+        if (added)   // 서버 추가가 실패한 경우에만 입력을 남겨 다시 시도할 수 있게 합니다.
         {
             AddEntry.Text = "";
             AddDetail.Text = "";

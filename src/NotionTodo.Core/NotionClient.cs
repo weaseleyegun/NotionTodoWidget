@@ -254,8 +254,15 @@ public sealed class NotionClient : INotionApi
         if (string.IsNullOrEmpty(text)) return Array.Empty<object>();
 
         var parts = new List<object>();
-        for (int i = 0; i < text.Length; i += 2000)
-            parts.Add(new { text = new { content = text.Substring(i, Math.Min(2000, text.Length - i)) } });
+        int pos = 0;
+        while (pos < text.Length)
+        {
+            int len = Math.Min(2000, text.Length - pos);
+            // 이모지 등 서로게이트 쌍이 경계에서 잘리면 깨지므로 한 글자 앞에서 끊습니다.
+            if (pos + len < text.Length && char.IsHighSurrogate(text[pos + len - 1])) len--;
+            parts.Add(new { text = new { content = text.Substring(pos, len) } });
+            pos += len;
+        }
         return parts.ToArray();
     }
 

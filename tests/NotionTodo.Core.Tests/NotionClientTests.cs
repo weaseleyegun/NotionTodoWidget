@@ -145,4 +145,17 @@ public class NotionClientTests
         await c.SetDoneAsync("p1", true);
         Assert.Equal("Bearer secret", h.Requests[0].Headers.Authorization!.ToString());
     }
+
+    [Fact]
+    public async Task SetDetail_DoesNotSplitSurrogatePairs()
+    {
+        var (c, h) = Make();
+        var text = new string('a', 1999) + "😀" + "tail";   // 이모지가 2000자 경계에 걸림
+        await c.SetDetailAsync("p1", text);
+        using var doc = JsonDocument.Parse(h.Bodies[0]);
+        var parts = doc.RootElement.GetProperty("properties").GetProperty("Detail").GetProperty("rich_text").EnumerateArray()
+            .Select(p => p.GetProperty("text").GetProperty("content").GetString()!).ToArray();
+        Assert.Equal(text, string.Concat(parts));
+        Assert.All(parts, p => Assert.DoesNotContain('�', p));
+    }
 }
