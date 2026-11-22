@@ -3,5 +3,6 @@
     <!-- 다크 -->
     <style name="QuickAddTheme" parent="@android:style/Theme.DeviceDefault.Dialog.MinWidth">
         <item name="android:windowSoftInputMode">stateVisible|adjustResize</item>
+        <item name="android:windowNoTitle">true</item>
     </style>
 </resources>
