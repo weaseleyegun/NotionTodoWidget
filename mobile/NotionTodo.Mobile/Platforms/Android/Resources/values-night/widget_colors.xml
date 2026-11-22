@@ -3,5 +3,8 @@
     <color name="widget_bg">#F21F1F1F</color>
     <color name="widget_text">#EDEDEC</color>
     <color name="widget_sub">#A3A3A0</color>
-    <color name="widget_accent">#2F8FEA</color>
+    <color name="widget_accent">#5AA7F0</color>
+    <color name="widget_due_over">#FF8A80</color>
+    <color name="widget_due_today">#FFB74D</color>
+    <color name="widget_due_ok">#6FD39A</color>
 </resources>

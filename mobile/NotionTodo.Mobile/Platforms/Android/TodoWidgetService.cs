@@ -85,25 +85,19 @@ public class TodoWidgetService : RemoteViewsService
             var rv = new RemoteViews(_context.PackageName, TodoWidgetProvider.Res(_context, "layout", "todo_widget_item"));
 
             int titleId = TodoWidgetProvider.Res(_context, "id", "item_title");
-            int dueId = TodoWidgetProvider.Res(_context, "id", "item_due");
 
             rv.SetTextViewText(titleId, item.IconPrefix + item.Title);
 
-            if (item.DueKind == "none")
+            // 마감 상태별 TextView 중 해당하는 것만 보이게 합니다. 색은 레이아웃의 리소스 참조라 테마가 바뀌면 같이 바뀝니다.
+            foreach (var kind in new[] { "over", "today", "ok" })
+                rv.SetViewVisibility(TodoWidgetProvider.Res(_context, "id", "item_due_" + kind), ViewStates.Gone);
+
+            var visibleKind = item.DueKind switch { "over" => "over", "today" => "today", "ok" => "ok", _ => null };
+            if (visibleKind is not null)
             {
-                rv.SetViewVisibility(dueId, ViewStates.Gone);
-            }
-            else
-            {
+                int dueId = TodoWidgetProvider.Res(_context, "id", "item_due_" + visibleKind);
                 rv.SetViewVisibility(dueId, ViewStates.Visible);
                 rv.SetTextViewText(dueId, item.DueText);
-                var color = item.DueKind switch
-                {
-                    "over" => "#E5534B",
-                    "today" => "#E08A2E",
-                    _ => "#3FA76A"
-                };
-                rv.SetTextColor(dueId, Android.Graphics.Color.ParseColor(color));
             }
 
             // ☐ → 완료, 제목 → 앱 열기

@@ -38,9 +38,25 @@
             android:textColor="@color/widget_text" />
 
         <TextView
-            android:id="@+id/item_due"
+            android:id="@+id/item_due_over"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="11sp" />
+            android:visibility="gone"
+            android:textSize="11sp"
+            android:textColor="@color/widget_due_over" />
+        <TextView
+            android:id="@+id/item_due_today"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            android:textSize="11sp"
+            android:textColor="@color/widget_due_today" />
+        <TextView
+            android:id="@+id/item_due_ok"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            android:textSize="11sp"
+            android:textColor="@color/widget_due_ok" />
     </LinearLayout>
 </LinearLayout>

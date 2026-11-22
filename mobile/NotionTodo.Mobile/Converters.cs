@@ -28,9 +28,9 @@ public sealed class DueKindColorConverter : IValueConverter
     public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
         => (value as string) switch
         {
-            "ok" => Color.FromArgb("#2E9D5B"),
-            "today" => Color.FromArgb("#E8A317"),
-            "over" => Color.FromArgb("#D64545"),
+            "ok" => Color.FromArgb("#1F7A45"),
+            "today" => Color.FromArgb("#A85A00"),
+            "over" => Color.FromArgb("#C23B3B"),
             _ => Colors.Transparent
         };
 
@@ -45,10 +45,10 @@ public sealed class StateColorConverter : IValueConverter
         => value is ConnState s
             ? s switch
             {
-                ConnState.Connected => Color.FromArgb("#2E9D5B"),
-                ConnState.Syncing => Color.FromArgb("#E8A317"),
-                ConnState.Failed => Color.FromArgb("#D64545"),
-                _ => Color.FromArgb("#888888")
+                ConnState.Connected => Color.FromArgb("#1F7A45"),
+                ConnState.Syncing => Color.FromArgb("#A85A00"),
+                ConnState.Failed => Color.FromArgb("#C23B3B"),
+                _ => Color.FromArgb("#666666")
             }
             : Colors.Gray;
 
