@@ -1,7 +1,171 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage
     x:Class="NotionTodo.Mobile.TodoPage"
+    xmlns:local="clr-namespace:NotionTodo.Mobile"
+    xmlns:core="clr-namespace:NotionTodoWidget;assembly=NotionTodo.Core"
+    x:DataType="core:TodoListViewModel"
+    Shell.NavBarIsVisible="False"
+    SafeAreaEdges="All"
     BackgroundColor="{AppThemeBinding Light=#F7F6F3, Dark=#191919}">
 
-    <Label x:Name="PlaceholderLabel" Margin="16" />
+    <ContentPage.Resources>
+        <local:InvertBoolConverter x:Key="Invert" />
+        <local:NotEmptyConverter x:Key="NotEmpty" />
+        <local:DueKindColorConverter x:Key="DueColor" />
+        <local:StateColorConverter x:Key="StateColor" />
+
+        <Style x:Key="ChipButton" TargetType="Button">
+            <Setter Property="FontSize" Value="12" />
+            <Setter Property="Padding" Value="10,0" />
+            <Setter Property="HeightRequest" Value="32" />
+            <Setter Property="Margin" Value="0,0,6,6" />
+            <Setter Property="CornerRadius" Value="16" />
+            <Setter Property="BackgroundColor" Value="{AppThemeBinding Light=#EAE8E3, Dark=#3A3A3A}" />
+            <Setter Property="TextColor" Value="{AppThemeBinding Light=#333, Dark=#EEE}" />
+        </Style>
+        <Style x:Key="IconButton" TargetType="Button">
+            <Setter Property="BackgroundColor" Value="Transparent" />
+            <Setter Property="TextColor" Value="{AppThemeBinding Light=#777, Dark=#AAA}" />
+            <Setter Property="FontSize" Value="16" />
+            <Setter Property="Padding" Value="6,0" />
+            <Setter Property="MinimumWidthRequest" Value="36" />
+            <Setter Property="HeightRequest" Value="36" />
+        </Style>
+    </ContentPage.Resources>
+
+    <Grid RowDefinitions="Auto,Auto,*,Auto,Auto">
+
+        <!-- 헤더: 제목 + 연결 상태 알약 + 노션에서 열기 -->
+        <Grid Grid.Row="0" ColumnDefinitions="*,Auto,Auto" Padding="16,8" ColumnSpacing="8">
+            <Label Text="{x:Static core:Strings.HeaderFallback}" FontSize="22" FontAttributes="Bold"
+                   VerticalOptions="Center" TextColor="{AppThemeBinding Light=#222, Dark=#EEE}" />
+            <Border Grid.Column="1" StrokeShape="RoundRectangle 14" Stroke="Transparent" Padding="10,4"
+                    VerticalOptions="Center"
+                    BackgroundColor="{Binding State, Converter={StaticResource StateColor}}">
+                <Label Text="{Binding StatusText}" TextColor="White" FontSize="11"
+                       LineBreakMode="TailTruncation" MaximumWidthRequest="190" />
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="OnStatusTapped" />
+                </Border.GestureRecognizers>
+            </Border>
+            <Button Grid.Column="2" Text="↗" Style="{StaticResource IconButton}" Clicked="OnOpenDb" />
+        </Grid>
+
+        <!-- 오류 -->
+        <Label Grid.Row="1" Text="{Binding ErrorMessage}" TextColor="#D64545" FontSize="13" Padding="16,0,16,6"
+               IsVisible="{Binding ErrorMessage, Converter={StaticResource NotEmpty}}" />
+
+        <!-- 목록 -->
+        <RefreshView x:Name="Refresh" Grid.Row="2" Refreshing="OnRefreshing">
+            <CollectionView x:Name="List" ItemsSource="{Binding Items}" SelectionMode="None">
+                <CollectionView.EmptyView>
+                    <Label Text="{x:Static core:Strings.EmptyText}" HorizontalTextAlignment="Center"
+                           VerticalOptions="Center" Margin="32"
+                           TextColor="{AppThemeBinding Light=#888, Dark=#999}" />
+                </CollectionView.EmptyView>
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="core:TodoItem">
+                        <Border Margin="12,4" Padding="12" StrokeShape="RoundRectangle 12" Stroke="Transparent"
+                                BackgroundColor="{AppThemeBinding Light=White, Dark=#252525}">
+                            <Grid ColumnDefinitions="Auto,*,Auto" RowDefinitions="Auto,Auto,Auto" ColumnSpacing="10">
+
+                                <!-- 완료 -->
+                                <Label Grid.Row="0" Grid.Column="0" Text="○" FontSize="28" VerticalOptions="Start"
+                                       TextColor="{AppThemeBinding Light=#999, Dark=#888}">
+                                    <Label.GestureRecognizers>
+                                        <TapGestureRecognizer Tapped="OnCompleteTapped" />
+                                    </Label.GestureRecognizers>
+                                </Label>
+
+                                <!-- 제목 (탭하면 펼침/접힘) -->
+                                <Label Grid.Row="0" Grid.Column="1" FontSize="17" VerticalOptions="Center"
+                                       TextColor="{AppThemeBinding Light=#222, Dark=#EEE}">
+                                    <Label.FormattedText>
+                                        <FormattedString>
+                                            <Span Text="{Binding IconPrefix}" />
+                                            <Span Text="{Binding Title}" />
+                                        </FormattedString>
+                                    </Label.FormattedText>
+                                    <Label.GestureRecognizers>
+                                        <TapGestureRecognizer Tapped="OnToggleTapped" />
+                                    </Label.GestureRecognizers>
+                                </Label>
+
+                                <HorizontalStackLayout Grid.Row="0" Grid.Column="2">
+                                    <Button Text="↗" Style="{StaticResource IconButton}" Clicked="OnOpenItem" />
+                                    <Button Text="🗑" Style="{StaticResource IconButton}" Clicked="OnDeleteClicked" />
+                                </HorizontalStackLayout>
+
+                                <!-- 접힌 상태: 세부내용 한 줄 + 마감 칩 -->
+                                <VerticalStackLayout Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" Spacing="6">
+                                    <Label Text="{Binding DetailPreview}" MaxLines="1" LineBreakMode="TailTruncation" FontSize="13"
+                                           IsVisible="{Binding IsExpanded, Converter={StaticResource Invert}}"
+                                           TextColor="{AppThemeBinding Light=#888, Dark=#999}" />
+                                    <Border StrokeShape="RoundRectangle 10" Stroke="Transparent" Padding="8,2"
+                                            HorizontalOptions="Start"
+                                            IsVisible="{Binding DueText, Converter={StaticResource NotEmpty}}"
+                                            BackgroundColor="{Binding DueKind, Converter={StaticResource DueColor}}">
+                                        <Label Text="{Binding DueText}" FontSize="12" TextColor="White" />
+                                    </Border>
+                                </VerticalStackLayout>
+
+                                <!-- 펼친 상태: 세부내용 편집 + 마감일 -->
+                                <VerticalStackLayout Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3" Spacing="8" Margin="0,8,0,0"
+                                                     IsVisible="{Binding IsExpanded}">
+                                    <Editor Text="{Binding Detail, Mode=OneWay}" AutoSize="TextChanges" MinimumHeightRequest="80"
+                                            Placeholder="{x:Static core:Strings.EditorPlaceholder}"
+                                            Focused="OnEditFocused" Unfocused="OnDetailUnfocused" />
+                                    <Label Text="{x:Static core:Strings.DueLabel}" FontSize="12"
+                                           TextColor="{AppThemeBinding Light=#888, Dark=#999}" />
+                                    <FlexLayout Wrap="Wrap">
+                                        <Button Text="{x:Static core:Strings.Today}" Style="{StaticResource ChipButton}" Clicked="OnDueToday" />
+                                        <Button Text="{x:Static core:Strings.Tomorrow}" Style="{StaticResource ChipButton}" Clicked="OnDueTomorrow" />
+                                        <Button Text="{x:Static core:Strings.NextWeek}" Style="{StaticResource ChipButton}" Clicked="OnDueNextWeek" />
+                                        <Button Text="📅" Style="{StaticResource ChipButton}" Clicked="OnDuePick" />
+                                        <Button Text="{x:Static core:Strings.ClearDue}" Style="{StaticResource ChipButton}" Clicked="OnDueClear" />
+                                    </FlexLayout>
+                                </VerticalStackLayout>
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+        </RefreshView>
+
+        <!-- 실행 취소 막대 -->
+        <Border Grid.Row="3" Margin="12,4" Padding="14,6" StrokeShape="RoundRectangle 10" Stroke="Transparent"
+                BackgroundColor="#333333" IsVisible="{Binding UndoText, Converter={StaticResource NotEmpty}}">
+            <Grid ColumnDefinitions="*,Auto">
+                <Label Text="{Binding UndoText}" TextColor="White" VerticalOptions="Center" LineBreakMode="TailTruncation" />
+                <Button Grid.Column="1" Text="{x:Static core:Strings.UndoAction}" BackgroundColor="Transparent"
+                        TextColor="#7AA8FF" Clicked="OnUndoClicked" />
+            </Grid>
+        </Border>
+
+        <!-- 새 할 일 -->
+        <VerticalStackLayout Grid.Row="4" Padding="12,6,12,10" Spacing="8">
+            <Grid ColumnDefinitions="*,Auto">
+                <Entry x:Name="AddEntry" Placeholder="{x:Static core:Strings.AddPlaceholder}" ReturnType="Done"
+                       Completed="OnAddCompleted" Focused="OnEditFocused" Unfocused="OnEditUnfocused" />
+                <Button Grid.Column="1" x:Name="AddToggle" Text="▾" Style="{StaticResource IconButton}" Clicked="OnAddToggle" />
+            </Grid>
+            <VerticalStackLayout x:Name="AddPanel" IsVisible="False" Spacing="8">
+                <Editor x:Name="AddDetail" AutoSize="TextChanges" MinimumHeightRequest="70"
+                        Placeholder="{x:Static core:Strings.NewDetailPlaceholder}"
+                        Focused="OnEditFocused" Unfocused="OnEditUnfocused" />
+                <FlexLayout Wrap="Wrap" AlignItems="Center">
+                    <Button Text="{x:Static core:Strings.Today}" Style="{StaticResource ChipButton}" Clicked="OnNewToday" />
+                    <Button Text="{x:Static core:Strings.Tomorrow}" Style="{StaticResource ChipButton}" Clicked="OnNewTomorrow" />
+                    <Button Text="📅" Style="{StaticResource ChipButton}" Clicked="OnNewPick" />
+                    <Button Text="{x:Static core:Strings.ClearDue}" Style="{StaticResource ChipButton}" Clicked="OnNewClear" />
+                    <Label x:Name="NewDueLabel" FontSize="12" VerticalOptions="Center"
+                           TextColor="{AppThemeBinding Light=#555, Dark=#BBB}" />
+                </FlexLayout>
+                <Button x:Name="AddButton" Clicked="OnAddClicked" />
+            </VerticalStackLayout>
+
+            <!-- 날짜 선택 창을 띄우기 위한 보이지 않는 DatePicker -->
+            <DatePicker x:Name="Picker" Opacity="0" WidthRequest="1" HeightRequest="1" DateSelected="OnDatePicked" />
+        </VerticalStackLayout>
+    </Grid>
 </ContentPage>
