@@ -23,7 +23,9 @@
             android:inputType="textCapSentences"
             android:imeOptions="actionSend"
             android:maxLines="1"
-            android:singleLine="true" />
+            android:singleLine="true">
+            <requestFocus />
+        </EditText>
         <ImageButton
             android:id="@+id/quick_send"
             android:layout_width="48dp"
