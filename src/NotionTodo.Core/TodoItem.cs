@@ -73,6 +73,20 @@ public class TodoItem : INotifyPropertyChanged
         }
     }
 
+    public TodoSnapshot ToSnapshot()
+        => new(Id, Title, Url, CreatedText, IconPrefix, Detail, Due);
+
+    public static TodoItem FromSnapshot(TodoSnapshot s)
+    {
+        var item = new TodoItem
+        {
+            Id = s.Id, Title = s.Title, Url = s.Url,
+            CreatedText = s.CreatedText, IconPrefix = s.IconPrefix, Detail = s.Detail
+        };
+        item.SetDue(s.Due);
+        return item;
+    }
+
     public event PropertyChangedEventHandler? PropertyChanged;
 
     private void OnPropertyChanged([CallerMemberName] string? name = null)
