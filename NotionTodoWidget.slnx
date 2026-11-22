@@ -1,0 +1,6 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/NotionTodo.Core/NotionTodo.Core.csproj" />
+  </Folder>
+  <Project Path="NotionTodoWidget.csproj" />
+</Solution>

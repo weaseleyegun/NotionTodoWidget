@@ -25,6 +25,14 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="src/NotionTodo.Core/NotionTodo.Core.csproj" />
+    <Compile Remove="src/**;tests/**;mobile/**" />
+    <Page Remove="src/**;tests/**;mobile/**" />
+    <None Remove="src/**;tests/**;mobile/**" />
+    <EmbeddedResource Remove="src/**;tests/**;mobile/**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Update="appsettings.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
