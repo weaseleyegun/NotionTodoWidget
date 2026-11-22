@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="NotionTodo.Mobile.TodoPage"
+    BackgroundColor="{AppThemeBinding Light=#F7F6F3, Dark=#191919}">
+
+    <Label x:Name="PlaceholderLabel" Margin="16" />
+</ContentPage>

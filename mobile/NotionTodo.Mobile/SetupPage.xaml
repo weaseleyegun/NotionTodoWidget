@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="NotionTodo.Mobile.SetupPage"
+    Shell.NavBarIsVisible="False"
+    BackgroundColor="{AppThemeBinding Light=#F7F6F3, Dark=#191919}">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="16,24" Spacing="12">
+            <Label x:Name="TitleLabel" FontSize="22" FontAttributes="Bold"
+                   TextColor="{AppThemeBinding Light=#222, Dark=#EEE}" />
+            <Label x:Name="IntroLabel" FontSize="14"
+                   TextColor="{AppThemeBinding Light=#555, Dark=#BBB}" />
+            <Button x:Name="IntegrationsButton" BackgroundColor="Transparent" Padding="0"
+                    HorizontalOptions="Start" FontSize="13"
+                    TextColor="{AppThemeBinding Light=#2F6FEB, Dark=#7AA8FF}" Clicked="OnOpenIntegrations" />
+
+            <Label x:Name="TokenLabel" FontSize="13" TextColor="{AppThemeBinding Light=#555, Dark=#BBB}" />
+            <Entry x:Name="TokenEntry" IsPassword="True" Keyboard="Plain" />
+
+            <Label x:Name="DbLabel" FontSize="13" TextColor="{AppThemeBinding Light=#555, Dark=#BBB}" />
+            <Entry x:Name="DbEntry" Keyboard="Url" />
+            <Label x:Name="DbHint" FontSize="12" TextColor="{AppThemeBinding Light=#777, Dark=#999}" />
+
+            <Label x:Name="LanguageLabel" FontSize="13" TextColor="{AppThemeBinding Light=#555, Dark=#BBB}" />
+            <Picker x:Name="LanguagePicker" />
+            <Label x:Name="LanguageNote" FontSize="12" TextColor="{AppThemeBinding Light=#777, Dark=#999}" />
+
+            <Label x:Name="ResultLabel" FontSize="14" />
+
+            <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
+                <Button x:Name="TestButton" Grid.Column="0" Clicked="OnTest" />
+                <Button x:Name="SaveButton" Grid.Column="1" Clicked="OnSave" />
+            </Grid>
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

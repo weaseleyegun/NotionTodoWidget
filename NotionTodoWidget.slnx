@@ -1,4 +1,7 @@
 <Solution>
+  <Folder Name="/mobile/">
+    <Project Path="mobile/NotionTodo.Mobile/NotionTodo.Mobile.csproj" />
+  </Folder>
   <Folder Name="/src/">
     <Project Path="src/NotionTodo.Core/NotionTodo.Core.csproj" />
   </Folder>
