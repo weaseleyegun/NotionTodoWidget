@@ -98,6 +98,8 @@ dotnet publish -c Release -r win-x64 --self-contained false -o publish
 | 오프라인 | 마지막으로 받은 목록을 보여주고 상태가 🔴 로 바뀜 |
 | 충돌 | 같은 항목을 위젯과 폰에서 동시에 수정하면 **마지막에 저장한 쪽**이 이김 |
 | 토큰 | 폰의 보안 저장소(SecureStorage)에만 저장 |
+| 홈 화면 위젯 | 4×4 크기 조절 가능. 마감일 순 목록, ☐ 로 완료, ⟳ 새로고침, 시스템 다크/라이트 자동 적용. 자동 갱신은 약 30분 간격 |
+| 위젯에서 빠른 추가 | 위젯 맨 아래 입력 바(▶)를 누르면 키보드와 함께 입력칸이 열림. 제목 + 마감일(없음/오늘/내일). 안드로이드는 위젯 안 직접 입력을 허용하지 않아 팝업 방식 |
 
 빌드: .NET SDK + `dotnet workload install maui-android`, JDK 17+, Android SDK 필요.
 ```powershell
@@ -159,6 +161,8 @@ An **Android app** (.NET MAUI) for the same Notion database lives in `mobile/`. 
 - **Offline:** shows the last list received and the status turns 🔴.
 - **Conflicts:** if the widget and phone edit the same item, the **last save wins**.
 - **Token:** stored only in the phone's SecureStorage.
+- **Home-screen widget:** resizable 4×4; list sorted by due date, ☐ to complete, ⟳ to refresh, follows system dark/light; auto-refresh about every 30 min.
+- **Quick add from the widget:** tap the input bar (▶) at the bottom of the widget to open a keyboard-docked input (title + due: none/today/tomorrow). Android does not allow real text fields inside widgets, so this is a popup.
 
 Build needs the .NET SDK, `dotnet workload install maui-android`, JDK 17+ and the Android SDK:
 ```powershell
