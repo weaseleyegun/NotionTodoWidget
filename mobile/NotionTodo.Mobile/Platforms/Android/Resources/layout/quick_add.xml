@@ -3,45 +3,59 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:padding="20dp">
+    android:paddingStart="16dp"
+    android:paddingEnd="8dp"
+    android:paddingTop="12dp"
+    android:paddingBottom="8dp">
 
-    <TextView
-        android:id="@+id/quick_heading"
+    <!-- 입력칸 + 보내기 아이콘 -->
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textSize="18sp"
-        android:textStyle="bold"
-        android:paddingBottom="8dp" />
+        android:orientation="horizontal"
+        android:gravity="center_vertical">
+        <EditText
+            android:id="@+id/quick_title"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:minHeight="48dp"
+            android:inputType="textCapSentences"
+            android:imeOptions="actionSend"
+            android:maxLines="1"
+            android:singleLine="true" />
+        <ImageButton
+            android:id="@+id/quick_send"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:padding="10dp"
+            android:background="?android:attr/selectableItemBackgroundBorderless"
+            android:src="@drawable/ic_send"
+            android:scaleType="fitCenter" />
+    </LinearLayout>
 
-    <EditText
-        android:id="@+id/quick_title"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:minHeight="48dp"
-        android:inputType="textCapSentences"
-        android:imeOptions="actionDone"
-        android:maxLines="1"
-        android:singleLine="true" />
-
+    <!-- 마감일 (선택) -->
     <RadioGroup
         android:id="@+id/quick_due"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:paddingTop="8dp">
+        android:orientation="horizontal">
         <RadioButton
             android:id="@+id/quick_due_none"
             android:layout_width="wrap_content"
-            android:layout_height="48dp"
+            android:layout_height="40dp"
+            android:textSize="13sp"
             android:checked="true" />
         <RadioButton
             android:id="@+id/quick_due_today"
             android:layout_width="wrap_content"
-            android:layout_height="48dp" />
+            android:layout_height="40dp"
+            android:textSize="13sp" />
         <RadioButton
             android:id="@+id/quick_due_tomorrow"
             android:layout_width="wrap_content"
-            android:layout_height="48dp" />
+            android:layout_height="40dp"
+            android:textSize="13sp" />
     </RadioGroup>
 
     <TextView
@@ -51,25 +65,5 @@
         android:visibility="gone"
         android:textSize="13sp"
         android:textColor="@color/widget_due_over"
-        android:paddingTop="4dp" />
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="end"
-        android:paddingTop="8dp">
-        <Button
-            android:id="@+id/quick_cancel"
-            style="?android:attr/borderlessButtonStyle"
-            android:layout_width="wrap_content"
-            android:layout_height="48dp" />
-        <Button
-            android:id="@+id/quick_add"
-            style="?android:attr/borderlessButtonStyle"
-            android:layout_width="wrap_content"
-            android:layout_height="48dp"
-            android:textColor="@color/widget_accent"
-            android:textStyle="bold" />
-    </LinearLayout>
+        android:paddingBottom="4dp" />
 </LinearLayout>

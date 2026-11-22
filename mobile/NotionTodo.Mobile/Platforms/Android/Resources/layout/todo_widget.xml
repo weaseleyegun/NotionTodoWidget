@@ -11,7 +11,6 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:gravity="center_vertical">
-
         <TextView
             android:id="@+id/widget_title"
             android:layout_width="0dp"
@@ -23,20 +22,6 @@
             android:paddingStart="4dp"
             android:paddingTop="4dp"
             android:paddingBottom="4dp" />
-
-        <TextView
-            android:id="@+id/widget_add"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="+"
-            android:textSize="26sp"
-            android:textStyle="bold"
-            android:textColor="@color/widget_accent"
-            android:contentDescription="@string/widget_add_description"
-            android:paddingStart="10dp"
-            android:paddingEnd="10dp"
-            android:paddingTop="2dp"
-            android:paddingBottom="2dp" />
         <TextView
             android:id="@+id/widget_refresh"
             android:layout_width="wrap_content"
@@ -51,14 +36,12 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1">
-
         <ListView
             android:id="@+id/widget_list"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:divider="@null"
             android:dividerHeight="0dp" />
-
         <TextView
             android:id="@+id/widget_empty"
             android:layout_width="match_parent"
@@ -67,4 +50,33 @@
             android:textSize="13sp"
             android:textColor="@color/widget_sub" />
     </FrameLayout>
+
+    <!-- 맨 아래 입력 바: 누르면 키보드가 올라오는 입력 팝업이 열립니다 (위젯에는 실제 입력창을 둘 수 없음) -->
+    <LinearLayout
+        android:id="@+id/widget_addbar"
+        android:layout_width="match_parent"
+        android:layout_height="46dp"
+        android:layout_marginTop="6dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:background="@drawable/widget_input_bg"
+        android:paddingStart="14dp"
+        android:paddingEnd="6dp">
+        <TextView
+            android:id="@+id/widget_add_hint"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:maxLines="1"
+            android:ellipsize="end"
+            android:textSize="14sp"
+            android:textColor="@color/widget_sub" />
+        <ImageView
+            android:id="@+id/widget_add_icon"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:padding="8dp"
+            android:src="@drawable/ic_send"
+            android:contentDescription="@string/widget_add_description" />
+    </LinearLayout>
 </LinearLayout>

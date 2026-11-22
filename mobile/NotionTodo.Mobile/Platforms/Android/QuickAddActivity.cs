@@ -5,7 +5,7 @@ using Android.Views;
 using Android.Views.InputMethods;
 using Android.Widget;
 using NotionTodoWidget;
-using AButton = Android.Widget.Button;
+using AImageButton = Android.Widget.ImageButton;
 using AView = Android.Views.View;
 using ARadioButton = Android.Widget.RadioButton;
 
@@ -23,7 +23,7 @@ public class QuickAddActivity : Activity
     private EditText _title = null!;
     private RadioGroup _due = null!;
     private TextView _error = null!;
-    private AButton _add = null!;
+    private AImageButton _send = null!;
 
     private T View<T>(string name) where T : AView
         => (T)FindViewById(Resources!.GetIdentifier(name, "id", PackageName))!;
@@ -34,7 +34,10 @@ public class QuickAddActivity : Activity
         SetContentView(Resources!.GetIdentifier("quick_add", "layout", PackageName));
         SetFinishOnTouchOutside(true);
 
-        View<TextView>("quick_heading").Text = Strings.QuickAddTitle;
+        // 키보드 바로 위, 화면 아래쪽에 붙여서 위젯에서 바로 입력하는 느낌을 줍니다.
+        Window?.SetGravity(GravityFlags.Bottom);
+        Window?.SetLayout(ViewGroup.LayoutParams.MatchParent, ViewGroup.LayoutParams.WrapContent);
+
         _title = View<EditText>("quick_title");
         _title.Hint = Strings.QuickAddHint;
         _due = View<RadioGroup>("quick_due");
@@ -43,18 +46,14 @@ public class QuickAddActivity : Activity
         View<ARadioButton>("quick_due_tomorrow").Text = Strings.Tomorrow;
         _error = View<TextView>("quick_error");
 
-        var cancel = View<AButton>("quick_cancel");
-        cancel.Text = Strings.BtnCancel;
-        cancel.Click += (_, _) => Finish();
+        _send = View<AImageButton>("quick_send");
+        _send.ContentDescription = Strings.BtnAdd;
+        _send.Click += (_, _) => Submit();
 
-        _add = View<AButton>("quick_add");
-        _add.Text = Strings.BtnAdd;
-        _add.Click += (_, _) => Submit();
-
-        // 키보드의 완료(체크) 키로도 추가
+        // 키보드의 보내기/완료 키로도 추가
         _title.EditorAction += (_, e) =>
         {
-            if (e.ActionId == ImeAction.Done) Submit();
+            if (e.ActionId == ImeAction.Send || e.ActionId == ImeAction.Done) Submit();
         };
     }
 
@@ -69,10 +68,10 @@ public class QuickAddActivity : Activity
     private void Submit()
     {
         var title = (_title.Text ?? "").Trim();
-        if (title.Length == 0 || !_add.Enabled) return;   // 빈 제목 / 전송 중 중복 탭 무시
+        if (title.Length == 0 || !_send.Enabled) return;   // 빈 제목 / 전송 중 중복 탭 무시
 
         var due = SelectedDue();
-        _add.Enabled = false;
+        _send.Enabled = false;
         _error.Visibility = ViewStates.Gone;
 
         _ = Task.Run(async () =>
@@ -99,7 +98,7 @@ public class QuickAddActivity : Activity
                 {
                     _error.Text = Strings.ErrAdd(ex.Message);   // 입력한 제목은 그대로 두어 다시 시도할 수 있게 함
                     _error.Visibility = ViewStates.Visible;
-                    _add.Enabled = true;
+                    _send.Enabled = true;
                 });
             }
         });

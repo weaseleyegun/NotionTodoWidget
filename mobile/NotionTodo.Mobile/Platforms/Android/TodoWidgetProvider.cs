@@ -60,11 +60,14 @@ public class TodoWidgetProvider : AppWidgetProvider
             PendingIntentFlags.UpdateCurrent | PendingIntentFlags.Immutable);
         rv.SetOnClickPendingIntent(Res(context, "id", "widget_refresh"), refreshPi);
 
-        // + 버튼: 빠른 추가 창 열기
+        // 맨 아래 입력 바(+ 보내기 아이콘): 누르면 키보드가 올라오는 입력 팝업을 엽니다.
+        // 위젯에는 실제 EditText 를 둘 수 없어서, 입력 바처럼 보이는 영역을 눌러 팝업으로 입력합니다.
+        rv.SetTextViewText(Res(context, "id", "widget_add_hint"), Strings.QuickAddHint);
         var add = new Intent(context, typeof(QuickAddActivity)).AddFlags(ActivityFlags.NewTask);
         var addPi = PendingIntent.GetActivity(context, widgetId + 300000, add,
             PendingIntentFlags.UpdateCurrent | PendingIntentFlags.Immutable);
-        rv.SetOnClickPendingIntent(Res(context, "id", "widget_add"), addPi);
+        rv.SetOnClickPendingIntent(Res(context, "id", "widget_addbar"), addPi);
+        rv.SetContentDescription(Res(context, "id", "widget_add_icon"), Strings.TipQuickAdd);
 
         // 제목 줄을 누르면 앱 열기
         var open = new Intent(context, typeof(MainActivity)).AddFlags(ActivityFlags.NewTask | ActivityFlags.ClearTop);
